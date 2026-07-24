@@ -1,0 +1,78 @@
+essa aplicação será uma Plataforma de Planejamento de Estudos
+terá dois tipos de usuários: internos (admin, moderadores, professores...) e externos (alunos). 
+a plataforma deve ter uma forma de gerenciar turmas,
+ela deve ter um ou mais planejamentos de estudo.
+os usuários internos podem criar planejamentos de estudo e vincular esse plano as turmas.
+o usuário externo pode seguir o plano de estudo sujerido ou pode criar uma proprio.
+# o plano de estudo de estudo 
+1. a estrutura do plano de estudo deve ter: as diciplinas, tema e subtema (Portugues (diciplina): Colocação pronominal (tema) - Mesoclise (subtema) )
+2. dever ter tempo de estudo sugerido, por exemplo: meu plano de estudo tem 4 diciplinas (portugues, matemárica, informatica, e direito), as 4 diciplima compões 100% do meu tempo de estudo, eu devo, destinar, 30% pra portugues, 20% informatica...
+3. quando o usuário for iniciar um cronograma de estudo ele deve informar os dias da semana que ele vai estudar, a quantidade de horas e os horarios que vai estudar. com base nessas informações a plataforma deve distribuir o plano de estudo em um cronograma de estudo em um calendário, por exemplo, ao longo da semana o usuário pode estudar 4 horas, das 08h as 10h e das 14h as 16h. dai a plataforma vai distribui as diciplinas conforme o percentual (peso de estudo)
+4. deve ter um mecanismo onde o usuário exeterno seleciona uma materia e inicia o estudo, dai começa a contar um relogio ao final, esse tempo de estudo será registrado para aquele materia/diciplina, deve permitir informar esse tempo manualmente também
+5. deve ter mecanismo de progresso de estudo, quando termintar de estudar determinado tema, por exemplo: Oração coordenada alternativa, marca como concluido daí mostra o progresso de estudo.
+6. deve permitir registrar as questões resolvidas por diciplina (tema/subtema), e quantidade de erros. bonus: com base na quantidade de erros de questões, sugerir estudar mais determinado tema. 
+7. deve ter um pagina de caledário, onde estara distribuido ao longo dos dias, as diciplinas a serem estudadas naquele dia, e o tempo de estudo.
+
+# estatisticas
+1. deve ter um modulo de estatiscas que permite ver algumas métricas de estudos do aluno, como horas estudadas, horas estudadas por diclipina....
+
+# gamificação
+1. a plataforma deve ter um ranking entre os alunos da mesma turma, com maior progresso nos estudos. e raking global onde compara todos os alunos da plataforma
+
+------------------------
+
+# arquitetura
+- deve usar banco de dados postgres
+- backend deve ser em node.js
+- frontend em angular
+- tudo deve rodar em docker
+
+# engenharia
+- deve usar padrão de projeto mvc
+- deve usar orm
+
+# design 
+- deve implentar o menu lateral direito
+- ter as opções de modo claro e escuro
+- deve ser um PWA e permitir o usuário salvar no celular
+- deve ser responsivo para diferentes telas
+
+--------------
+
+# integração com hotmart
+
+quero desenvolver uma plataforma de planejamento de estudo onde lá terei os cronogramas de estudos, aí tava pensando na possibilidade de integrar com a hotmart, pelo menos a base de usuários, de modo que os usuário da minha base na hotmart tenha acesso a minha plataforma de plano de estudo, é possível essa integração?
+
+
+Opa! Vou te ajudar a integrar sua plataforma de planejamento de estudo com sua base de assinantes da Hotmart 😊
+
+A melhor forma de fazer isso é usando as APIs da Hotmart! Elas funcionam como uma ponte segura entre a Hotmart e sua plataforma externa, permitindo que você automatize processos e centralize informações.
+
+Aqui está como você pode fazer essa integração:
+
+Primeiro, você precisa criar suas credenciais de acesso. Acesse sua conta na Hotmart em app.hotmart.com, vá no menu lateral em Ferramentas e depois em Credenciais. Crie uma nova credencial dando um nome que identifique sua plataforma de planejamento. O sistema vai gerar códigos secretos (client_id, client_secret, Basic) - guarde esses códigos com muito cuidado porque eles são confidenciais e dão acesso às suas informações. Importante: faça download dessas informações porque você não conseguirá vê-las novamente depois.
+
+Com as credenciais em mãos, você pode usar os endpoints de Assinaturas e Área de Membros disponíveis no Hotmart Developers. Através deles, sua plataforma consegue consultar informações sobre seus assinantes, como dados de compra, status de assinatura, cancelamentos e até o progresso dos alunos.
+
+Antes de colocar tudo no ar, use o ambiente de Sandbox para testar sua integração sem mexer na sua conta real. É só direcionar as credenciais criadas para a URL dedicada do Sandbox e simular os cenários que você precisa.
+
+No Hotmart Developers você encontra documentação completa, exemplos práticos de código e guias detalhados sobre cada endpoint. Acesse em developers.hotmart.com/docs/pt-BR/start/about/
+
+Só um detalhe importante: as APIs de leitura servem para extrair dados da Hotmart para o seu sistema. Recursos que você criar externamente na sua plataforma de planejamento funcionam de forma independente e devem ser disponibilizados aos seus alunos nas suas próprias interfaces, ok?
+
+Alguma dúvida sobre o processo? Estou aqui pra te ajudar! 🚀
+
+
+
+
+Os alunos só podem ver os planos de estudo atrelados a sua turma;
+apartir do momento que o aluno criar o cronograma de estudo, aquele cronograma deve ser o padrão pra todos os modulos (estudar, progresso, calendario);
+quando iniciar o cronometro de estudo, deve mostrar o cronometro contando no aside entre a nav e a div sidebar_footer;
+remova o opção de selecionar o tema do aside, deixe apenas na pagina de perfil;
+na pagina de calendário, quando o usuário clicar em "iniciar estudo", ao inves de rediecionar para a pagina "Estudar" deve abrir um modal com o cronometro já setado a diciplina e subtema;
+em gerenciar turma, deve ter a opção de vincular aluno;
+o calendario está em ingles, deve ser em portugues, que quero que adicione a opção de visualizar semanalmente e mensalmente;
+na pagina de questões, o form que registra as questões está sobresaindo o componente de modo que os inputs estão sobpondo o componentedo lado "Desempenho por tema";
+
+
+ao final do projeto, fazer uma estimativa de quantos tokens foram usados, e estimar o valor da plataforma

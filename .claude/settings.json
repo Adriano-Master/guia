@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(ng *)",
+      "Bash(prisma *)",
+      "Bash(jest *)",
+      "Bash(docker *)",
+      "Bash(docker compose *)",
+      "Bash(git *)",
+      "Bash(curl *)",
+      "Bash(grep *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(echo *)",
+      "Bash(which *)",
+      "Bash(lsof *)",
+      "Bash(nc -z *)",
+      "Bash(kill *)",
+      "Bash(openssl rand *)",
+      "Bash(python3 *)",
+      "Bash(DATABASE_URL=*)",
+      "Bash(PORT=*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(sudo *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
+  }
+}

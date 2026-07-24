@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+build/
+.angular/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Tests / coverage
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

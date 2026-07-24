@@ -1,0 +1,313 @@
+$bp-mobile: 768px;
+
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  // topbar e sidebar recebem o vidro pela classe global .glass-panel
+  // (background + backdrop-filter); aqui só o layout e as bordas retas.
+  // Orçamento de blur do §6: topbar (mobile) + sidebar + cards.
+  &__topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3.5rem;
+    padding: 0.375rem 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+
+    .shell__brand {
+      flex: 1;
+    }
+  }
+
+  &__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-background);
+    }
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  &__brand-initial {
+    display: none;
+  }
+
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgb(15 23 42 / 55%);
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 16rem;
+    border-right: 1px solid var(--glass-border);
+  }
+
+  &__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    min-height: 3.5rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 44px;
+      padding: 0 0.75rem;
+      border-radius: 0.5rem;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      white-space: nowrap;
+
+      &:hover {
+        color: var(--color-text);
+        background: var(--color-background);
+      }
+    }
+  }
+
+  &__nav a.shell__link--active {
+    color: var(--color-primary);
+    font-weight: 600;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  &__sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  &__footer-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--color-text);
+      background: var(--color-background);
+    }
+  }
+
+  &__footer-btn.shell__cta {
+    color: var(--color-primary);
+    font-weight: 600;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  // Widget do cronômetro ativo (entre a nav e o rodapé): reaproveita o layout
+  // de .shell__footer-btn e fica consistente com o vidro do aside via tokens
+  // (surface-inset/glass-border), sem uma segunda camada de backdrop-filter
+  // dentro do painel (orçamento de blur do §6). Estado rodando/pausado
+  // indicado por ícone + texto (não só cor).
+  &__crono {
+    margin: 0 0.5rem 0.5rem;
+    background: var(--surface-inset);
+    border: 1px solid var(--glass-border);
+    color: var(--color-text);
+
+    &:hover {
+      border-color: var(--color-primary);
+    }
+  }
+
+  &__crono-tempo {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__crono-estado {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  &__user {
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__ios-hint {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    padding: 1.5rem 1rem;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  // Banner do modo de visualização de aluno (.shell__impersonation): estilos
+  // no styles.scss global, junto dos utilitários compartilhados (.alert, .btn),
+  // para não estourar o budget de anyComponentStyle deste componente.
+}
+
+@media (max-width: $bp-mobile) {
+  .shell {
+    &__sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 40;
+      transform: translateX(-105%);
+      transition: transform 0.2s ease;
+
+      &--open {
+        transform: none;
+        box-shadow: 0 0 2rem rgb(15 23 42 / 30%);
+      }
+    }
+
+    &__collapse {
+      display: none;
+    }
+  }
+}
+
+@media (min-width: ($bp-mobile + 1px)) {
+  .shell {
+    flex-direction: row;
+
+    &__topbar,
+    &__overlay {
+      display: none;
+    }
+
+    &__sidebar {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      flex-shrink: 0;
+      transition: width 0.2s ease;
+    }
+
+    &--collapsed .shell__sidebar {
+      width: 4.25rem;
+    }
+
+    // visually-hidden (não display: none): o nome acessível dos links
+    // colapsados não depende do atributo title
+    &--collapsed .shell__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    &--collapsed .shell__brand-initial {
+      display: inline;
+    }
+
+    &--collapsed .shell__sidebar-header {
+      flex-direction: column;
+      padding: 0.375rem;
+    }
+
+    &--collapsed .shell__nav a,
+    &--collapsed .shell__footer-btn {
+      justify-content: center;
+      padding: 0;
+    }
+
+    // colapsado, o widget do cronômetro mostra só o tempo (ícone e estado
+    // são .shell__label, visually-hidden como os demais rótulos)
+    &--collapsed .shell__crono-tempo {
+      font-size: 0.6875rem;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell__sidebar {
+    transition: none;
+  }
+}

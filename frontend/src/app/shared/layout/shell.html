@@ -1,0 +1,361 @@
+<div class="shell" [class.shell--collapsed]="collapsed()" (keydown.escape)="closeDrawer()">
+  <a class="skip-link" href="#conteudo" (click)="skipToContent($event)">Pular para o conteúdo</a>
+
+  <header class="shell__topbar glass-panel">
+    <button
+      #hamburger
+      class="shell__icon-btn"
+      type="button"
+      aria-controls="shell-sidebar"
+      [attr.aria-expanded]="drawerOpen()"
+      [attr.aria-label]="drawerOpen() ? 'Fechar menu' : 'Abrir menu'"
+      (click)="toggleDrawer()"
+    >
+      @if (drawerOpen()) {
+        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      } @else {
+        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      }
+    </button>
+
+    <a class="shell__brand" routerLink="/">Guia de Estudos</a>
+  </header>
+
+  @if (drawerOpen()) {
+    <div class="shell__overlay" (click)="closeDrawer()" aria-hidden="true"></div>
+  }
+
+  <aside
+    #sidebar
+    id="shell-sidebar"
+    class="shell__sidebar glass-panel"
+    [class.shell__sidebar--open]="drawerOpen()"
+    aria-label="Menu lateral"
+    [attr.role]="drawerOpen() ? 'dialog' : null"
+    [attr.aria-modal]="drawerOpen() ? 'true' : null"
+    (keydown)="onSidebarKeydown($event)"
+  >
+    <div class="shell__sidebar-header">
+      <a class="shell__brand" routerLink="/">
+        <span class="shell__brand-initial" aria-hidden="true">G</span>
+        <span class="shell__label">Guia de Estudos</span>
+      </a>
+      <button
+        class="shell__icon-btn shell__collapse"
+        type="button"
+        aria-controls="shell-sidebar"
+        [attr.aria-expanded]="!collapsed()"
+        [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+        (click)="toggleCollapsed()"
+      >
+        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="shell__nav" aria-label="Navegação principal">
+      <a
+        routerLink="/"
+        routerLinkActive="shell__link--active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.title]="collapsed() ? 'Início' : null"
+      >
+        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5" />
+          <path d="M5 9.5V21h14V9.5" />
+        </svg>
+        <span class="shell__label">Início</span>
+      </a>
+      @if (auth.isAuthenticated()) {
+        @if (auth.role() === 'ALUNO') {
+          <a
+            routerLink="/cronograma"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Calendário' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path d="M3 9h18M8 3v4M16 3v4" />
+            </svg>
+            <span class="shell__label">Calendário</span>
+          </a>
+          <a
+            routerLink="/sessoes"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Estudar' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+            <span class="shell__label">Estudar</span>
+          </a>
+          <a
+            routerLink="/progresso"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Progresso' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20v-6M10 20V9M16 20V4M3 20h19" />
+            </svg>
+            <span class="shell__label">Progresso</span>
+          </a>
+          <a
+            routerLink="/questoes"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Questões' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9.3 9.2a2.7 2.7 0 1 1 3.9 2.4c-.8.4-1.2 1-1.2 1.9v.4" />
+              <path d="M12 16.6h.01" />
+            </svg>
+            <span class="shell__label">Questões</span>
+          </a>
+          <a
+            routerLink="/estatisticas"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Estatísticas' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 17l6-6 4 4 8-8" />
+              <path d="M15 7h6v6" />
+            </svg>
+            <span class="shell__label">Estatísticas</span>
+          </a>
+          <a
+            routerLink="/ranking"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Ranking' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 4h8v5a4 4 0 0 1-8 0V4z" />
+              <path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3" />
+              <path d="M12 13v4M8 21h8M10 17h4" />
+            </svg>
+            <span class="shell__label">Ranking</span>
+          </a>
+          <a
+            routerLink="/minhas-turmas"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Minhas turmas' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4 2 9l10 5 10-5-10-5z" />
+              <path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5" />
+            </svg>
+            <span class="shell__label">Minhas turmas</span>
+          </a>
+        } @else {
+          <a
+            routerLink="/turmas"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Turmas' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4 2 9l10 5 10-5-10-5z" />
+              <path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5" />
+            </svg>
+            <span class="shell__label">Turmas</span>
+          </a>
+          @if (auth.role() === 'PROFESSOR') {
+            <a
+              routerLink="/ranking"
+              routerLinkActive="shell__link--active"
+              ariaCurrentWhenActive="page"
+              [attr.title]="collapsed() ? 'Ranking' : null"
+            >
+              <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 4h8v5a4 4 0 0 1-8 0V4z" />
+                <path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3" />
+                <path d="M12 13v4M8 21h8M10 17h4" />
+              </svg>
+              <span class="shell__label">Ranking</span>
+            </a>
+          }
+        }
+        <a
+          routerLink="/planos"
+          routerLinkActive="shell__link--active"
+          ariaCurrentWhenActive="page"
+          [attr.title]="collapsed() ? 'Planos' : null"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 6h13M8 12h13M8 18h13" />
+            <circle cx="4" cy="6" r="1" />
+            <circle cx="4" cy="12" r="1" />
+            <circle cx="4" cy="18" r="1" />
+          </svg>
+          <span class="shell__label">Planos</span>
+        </a>
+        <a
+          routerLink="/perfil"
+          routerLinkActive="shell__link--active"
+          ariaCurrentWhenActive="page"
+          [attr.title]="collapsed() ? 'Perfil' : null"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c0-4 3.5-6 8-6s8 2 8 6" />
+          </svg>
+          <span class="shell__label">Perfil</span>
+        </a>
+        @if (auth.isAdmin()) {
+          <a
+            routerLink="/admin/usuarios"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Usuários' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="8" r="3.5" />
+              <path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5" />
+              <path d="M16.5 4.6a3.5 3.5 0 0 1 0 6.8M15 14.7c2.8.5 5 2.2 5 5.3" />
+            </svg>
+            <span class="shell__label">Usuários</span>
+          </a>
+        }
+      }
+    </nav>
+
+    @if (auth.role() === 'ALUNO' && sessaoAtiva.sessao()) {
+      <a
+        class="shell__footer-btn shell__crono"
+        routerLink="/sessoes"
+        [attr.aria-label]="cronoLabel()"
+        [attr.title]="collapsed() ? cronoLabel() : null"
+      >
+        @if (sessaoAtiva.pausado()) {
+          <svg class="shell__icon shell__label" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 5v14M15 5v14" />
+          </svg>
+        } @else {
+          <svg class="shell__icon shell__label" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 4.5 19 12 7 19.5V4.5z" />
+          </svg>
+        }
+        <span class="shell__crono-tempo">{{ sessaoAtiva.decorridoLabel() }}</span>
+        <span class="shell__crono-estado shell__label">
+          {{ sessaoAtiva.pausado() ? 'Pausado' : 'Em andamento' }}
+        </span>
+      </a>
+    }
+
+    <div class="shell__sidebar-footer">
+      @if (install.canInstall()) {
+        <button
+          class="shell__footer-btn"
+          type="button"
+          [attr.title]="collapsed() ? 'Instalar app' : null"
+          (click)="promptInstall()"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12M8 11l4 4 4-4M4 21h16" />
+          </svg>
+          <span class="shell__label">Instalar app</span>
+        </button>
+      } @else if (install.showIosHint()) {
+        <button
+          class="shell__footer-btn"
+          type="button"
+          aria-controls="ios-install-hint"
+          [attr.aria-expanded]="iosHintOpen()"
+          [attr.title]="collapsed() ? 'Instalar app' : null"
+          (click)="iosHintOpen.set(!iosHintOpen())"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12M8 11l4 4 4-4M4 21h16" />
+          </svg>
+          <span class="shell__label">Instalar app</span>
+        </button>
+        @if (iosHintOpen()) {
+          <p id="ios-install-hint" class="shell__ios-hint">
+            No Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".
+          </p>
+        }
+      }
+
+      @if (auth.isAuthenticated()) {
+        <p class="shell__user shell__label">{{ auth.currentUser()?.nome }}</p>
+        <button
+          class="shell__footer-btn"
+          type="button"
+          [attr.title]="collapsed() ? 'Sair' : null"
+          (click)="logout()"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          <span class="shell__label">Sair</span>
+        </button>
+      } @else {
+        <a
+          class="shell__footer-btn"
+          routerLink="/login"
+          [attr.title]="collapsed() ? 'Entrar' : null"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M8 17l-5-5 5-5M3 12h12" />
+          </svg>
+          <span class="shell__label">Entrar</span>
+        </a>
+        <a
+          class="shell__footer-btn shell__cta"
+          routerLink="/register"
+          [attr.title]="collapsed() ? 'Criar conta' : null"
+        >
+          <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10" cy="8" r="4" />
+            <path d="M2 21c0-4 3.5-6 8-6M18 13v6M15 16h6" />
+          </svg>
+          <span class="shell__label">Criar conta</span>
+        </a>
+      }
+    </div>
+  </aside>
+
+  <main id="conteudo" class="shell__content" tabindex="-1" [attr.inert]="drawerOpen() ? '' : null">
+    @if (impersonation.ativo()) {
+      <div class="shell__impersonation" role="status">
+        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" />
+          <circle cx="12" cy="12" r="2.8" />
+        </svg>
+        <span class="shell__impersonation-texto">
+          Visualizando como <strong>{{ impersonation.state()?.alunoNome }}</strong> (somente
+          leitura)
+        </span>
+        <button class="btn btn--outline btn--sm" type="button" (click)="impersonation.sair()">
+          Voltar ao admin
+        </button>
+      </div>
+    } @else if (impersonation.aviso(); as aviso) {
+      <div class="shell__impersonation shell__impersonation--aviso" role="status">
+        <span class="shell__impersonation-texto">{{ aviso }}</span>
+        <button
+          class="btn btn--outline btn--sm"
+          type="button"
+          aria-label="Dispensar aviso"
+          (click)="impersonation.limparAviso()"
+        >
+          Ok
+        </button>
+      </div>
+    }
+    <router-outlet />
+  </main>
+</div>

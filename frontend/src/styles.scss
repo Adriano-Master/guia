@@ -1,0 +1,595 @@
+/* Estilos globais, tokens de tema e base glassmorphism (glassmorphism-ui.md).
+ *
+ * 4 temas — azul, verde, claro, escuro — aplicados via `data-theme` no <html>
+ * (ThemeService + script inline anti-flash em index.html). Cada tema define o
+ * contrato completo de tokens do §3; trocar de tema = trocar só o atributo.
+ *
+ * Contraste AA (§5) calculado sobre o COMPOSITE do vidro no pior stop do
+ * gradiente: composite = alpha*vidro + (1-alpha)*stop. Pares (razão ≥ 4.5:1):
+ *
+ *   azul   (pior stop #0e3a6e → composite #112b5a):
+ *     text-primary #f2f6ff 12.77 · text-secondary #bcc9e8 8.33
+ *     accent #6cc4ff 7.22 · accent-contrast/accent 8.57
+ *     danger #ffa3a3 7.25 (5.76 sobre danger-bg) · success #6ee7a8 8.99
+ *     warning #fcd34d 9.58 · info #7dd3fc 8.29
+ *   verde  (pior stop #0d5140 → composite #0c4032):
+ *     text-primary #ecfdf5 11.16 · text-secondary #aed4c5 7.29
+ *     accent #5eead4 7.95 · accent-contrast/accent 9.51
+ *     danger #ffa3a3 6.17 (5.04 sobre danger-bg) · success #7ce8ab 7.83
+ *     warning #fcd34d 8.15 · info #7dd3fc 7.05
+ *   claro  (pior stop #dfe7f4 → composite #f4f7fb):
+ *     text-primary #101828 16.47 · text-secondary #41506b 7.54
+ *     accent #144bc4 6.88 · accent-contrast/accent 7.41
+ *     danger #b42318 6.10 (5.23 sobre danger-bg) · success #067647 5.28
+ *     warning #93540b 5.55 · info #026aa2 5.44
+ *   escuro (pior stop #1b2130 → composite #181d2a):
+ *     text-primary #f1f5f9 15.33 · text-secondary #a8b2c5 7.87
+ *     accent #85baff 8.37 · accent-contrast/accent 9.11
+ *     danger #ffa3a3 8.81 (6.76 sobre danger-bg) · success #6ee7a8 10.92
+ *     warning #fcd34d 11.65 · info #7dd3fc 10.07
+ *
+ * O fallback quase opaco (--surface-solid, alpha 0.94) mantém todos os pares
+ * acima de 4.5:1 (§1 fallback / §5 reduced-transparency).
+ *
+ * --surface-flat (alpha 0.8, cards de item de lista sem blur — §6): composites
+ * azul #122754, verde #0b3b2e, claro #f9fafd, escuro #171c28 — todos os pares
+ * acima seguem ≥ 4.5:1 (mínimo: success 5.45 no claro).
+ */
+
+/* Gradiente de fundo de cada tema, definido UMA única vez: cada tema aponta
+   seu --bg-gradient para o token correspondente, e o theme-switcher usa os
+   mesmos tokens nos swatches de pré-visualização (que mostram os gradientes
+   de TODOS os temas, não só o ativo — por isso ficam fora dos mixins). */
+:root {
+  --theme-gradient-azul: linear-gradient(160deg, #0a1836 0%, #142a5e 55%, #0e3a6e 100%);
+  --theme-gradient-verde: linear-gradient(160deg, #052e21 0%, #0b4433 55%, #0d5140 100%);
+  --theme-gradient-claro: linear-gradient(160deg, #f4f7fb 0%, #dfe7f4 55%, #e6efe9 100%);
+  --theme-gradient-escuro: linear-gradient(160deg, #0b0f16 0%, #151a23 55%, #1b2130 100%);
+}
+
+/* Paleta categórica --chart-1..8 (acentos por disciplina no calendário e
+   gráficos de estatísticas). Ordem FIXA de matizes (nunca ciclar/repintar por
+   ranking); variantes claras nos temas de fundo escuro, escuras no claro.
+   Validada p/ daltonismo (CVD) e contraste ≥3:1 contra as superfícies dos 4
+   temas; exceções sob WARN exigem rótulo/legenda com texto junto à cor (nunca
+   identidade só por cor). Uso não-textual (bordas, barras, dots). */
+@mixin chart-dark-bg {
+  --chart-1: #3987e5;
+  --chart-2: #199e70;
+  --chart-3: #c98500;
+  --chart-4: #008300;
+  --chart-5: #9085e9;
+  --chart-6: #e66767;
+  --chart-7: #d55181;
+  --chart-8: #d95926;
+}
+
+@mixin chart-light-bg {
+  --chart-1: #2a78d6;
+  --chart-2: #1baf7a;
+  --chart-3: #eda100;
+  --chart-4: #008300;
+  --chart-5: #4a3aa7;
+  --chart-6: #e34948;
+  --chart-7: #e87ba4;
+  --chart-8: #eb6834;
+}
+
+@mixin theme-azul {
+  color-scheme: dark;
+
+  --bg-gradient: var(--theme-gradient-azul);
+  --bg-base: #0a1836;
+  --surface-glass: rgb(19 34 78 / 62%);
+  --surface-solid: rgb(19 34 78 / 94%);
+  --surface-flat: rgb(19 34 78 / 80%);
+  --surface-inset: rgb(255 255 255 / 7%);
+  --glass-border: rgb(255 255 255 / 18%);
+  --glass-blur: 14px;
+  --glass-radius: 0.75rem;
+  --glass-shadow: 0 8px 32px rgb(2 8 30 / 35%);
+  --text-primary: #f2f6ff;
+  --text-secondary: #bcc9e8;
+  --accent: #6cc4ff;
+  --accent-contrast: #07203c;
+  --success: #6ee7a8;
+  --warning: #fcd34d;
+  --danger: #ffa3a3;
+  --info: #7dd3fc;
+  --success-bg: rgb(52 211 153 / 16%);
+  --danger-bg: rgb(255 128 128 / 16%);
+
+  @include chart-dark-bg;
+}
+
+@mixin theme-verde {
+  color-scheme: dark;
+
+  --bg-gradient: var(--theme-gradient-verde);
+  --bg-base: #052e21;
+  --surface-glass: rgb(11 53 41 / 62%);
+  --surface-solid: rgb(11 53 41 / 94%);
+  --surface-flat: rgb(11 53 41 / 80%);
+  --surface-inset: rgb(255 255 255 / 7%);
+  --glass-border: rgb(255 255 255 / 18%);
+  --glass-blur: 14px;
+  --glass-radius: 0.75rem;
+  --glass-shadow: 0 8px 32px rgb(1 18 12 / 35%);
+  --text-primary: #ecfdf5;
+  --text-secondary: #aed4c5;
+  --accent: #5eead4;
+  --accent-contrast: #053228;
+  --success: #7ce8ab;
+  --warning: #fcd34d;
+  --danger: #ffa3a3;
+  --info: #7dd3fc;
+  --success-bg: rgb(52 211 153 / 16%);
+  --danger-bg: rgb(255 128 128 / 16%);
+
+  @include chart-dark-bg;
+}
+
+@mixin theme-claro {
+  color-scheme: light;
+
+  --bg-gradient: var(--theme-gradient-claro);
+  --bg-base: #f4f7fb;
+  --surface-glass: rgb(255 255 255 / 65%);
+  --surface-solid: rgb(255 255 255 / 94%);
+  --surface-flat: rgb(255 255 255 / 80%);
+  --surface-inset: rgb(15 23 42 / 5%);
+  --glass-border: rgb(16 24 40 / 14%);
+  --glass-blur: 14px;
+  --glass-radius: 0.75rem;
+  --glass-shadow: 0 8px 32px rgb(16 24 40 / 10%);
+  --text-primary: #101828;
+  --text-secondary: #41506b;
+  --accent: #144bc4;
+  --accent-contrast: #ffffff;
+  --success: #067647;
+  --warning: #93540b;
+  --danger: #b42318;
+  --info: #026aa2;
+  --success-bg: rgb(5 150 105 / 10%);
+  --danger-bg: rgb(225 29 72 / 10%);
+
+  @include chart-light-bg;
+}
+
+@mixin theme-escuro {
+  color-scheme: dark;
+
+  --bg-gradient: var(--theme-gradient-escuro);
+  --bg-base: #0b0f16;
+  --surface-glass: rgb(22 27 38 / 62%);
+  --surface-solid: rgb(22 27 38 / 94%);
+  --surface-flat: rgb(22 27 38 / 80%);
+  --surface-inset: rgb(255 255 255 / 7%);
+  --glass-border: rgb(255 255 255 / 18%);
+  --glass-blur: 14px;
+  --glass-radius: 0.75rem;
+  --glass-shadow: 0 8px 32px rgb(0 0 0 / 40%);
+  --text-primary: #f1f5f9;
+  --text-secondary: #a8b2c5;
+  --accent: #85baff;
+  --accent-contrast: #0a1526;
+  --success: #6ee7a8;
+  --warning: #fcd34d;
+  --danger: #ffa3a3;
+  --info: #7dd3fc;
+  --success-bg: rgb(52 211 153 / 16%);
+  --danger-bg: rgb(255 128 128 / 16%);
+
+  @include chart-dark-bg;
+}
+
+/* Fallback sem JS: claro por padrão, escuro sob prefers-color-scheme. O
+   script inline de index.html sempre define data-theme antes do render, então
+   estas regras só valem para <noscript>/falha do script. */
+:root {
+  @include theme-claro;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include theme-escuro;
+  }
+}
+
+:root[data-theme='azul'] {
+  @include theme-azul;
+}
+
+:root[data-theme='verde'] {
+  @include theme-verde;
+}
+
+:root[data-theme='claro'] {
+  @include theme-claro;
+}
+
+:root[data-theme='escuro'] {
+  @include theme-escuro;
+}
+
+/* Aliases legados --color-* → tokens do glassmorphism (critério §7: telas
+   existentes renderizam nos 4 temas sem ajuste por componente). Referências
+   var() resolvem no uso, então uma definição cobre os 4 temas.
+   Mapeamentos não 1:1 (token mais próximo, documentado):
+   - --color-background: era o fundo da página; os componentes o usam como
+     hover/painel rebaixado dentro de cards, então vira --surface-inset
+     (o fundo da página agora é --bg-gradient no body).
+   - --color-surface: superfícies elevadas → --surface-glass (os contêineres
+     com blur recebem .glass/.glass-panel; usos avulsos ficam translúcidos
+     sem blur próprio, dentro do orçamento do §6). */
+:root {
+  --color-primary: var(--accent);
+  --color-primary-contrast: var(--accent-contrast);
+  --color-background: var(--surface-inset);
+  --color-surface: var(--surface-glass);
+  --color-border: var(--glass-border);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+}
+
+/* §1 fallback: sem backdrop-filter o vidro fica quase opaco (alpha 0.94),
+   preservando a hierarquia visual e o contraste calculado acima.
+   Seletor `:root, :root[data-theme]` (0,2,0): precisa EMPATAR com os blocos
+   de tema :root[data-theme='...'] acima para vencer por ordem no fonte —
+   o script inline sempre define data-theme, então só :root (0,1,0) perderia
+   e o fallback nunca se aplicaria. Manter estes blocos DEPOIS dos temas. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  :root[data-theme] {
+    --surface-glass: var(--surface-solid);
+    --surface-flat: var(--surface-solid);
+  }
+}
+
+/* §5: transparência reduzida → superfícies quase opacas e blur mínimo. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme] {
+    --surface-glass: var(--surface-solid);
+    --surface-flat: var(--surface-solid);
+    --glass-blur: 4px;
+  }
+}
+
+/* Superfície de vidro (§1). Orçamento de blur (§6): aplicar apenas em
+   sidebar/topbar e no nível de card/modal — nunca por item de lista.
+   Sem transição de blur; troca de tema sem transição (permitido pelo §6). */
+%glass-backdrop {
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+}
+
+/* Painel colado às bordas (sidebar/topbar): vidro sem radius/sombra. */
+.glass-panel {
+  @extend %glass-backdrop;
+}
+
+/* Cartão de vidro completo. */
+.glass {
+  @extend %glass-backdrop;
+
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fundo em gradiente do tema (§1) via pseudo-elemento fixo em vez de
+   background-attachment: fixed, que causa repaint por scroll no iOS/Android
+   (§6 perf mobile): a camada fixa pinta uma vez e o conteúdo rola sobre ela. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg-gradient);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.625rem 1rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:focus {
+    top: 0.75rem;
+  }
+}
+
+/* ---- Componentes utilitários compartilhados (forms, botões, alertas, tabela) ---- */
+
+.card {
+  @extend .glass;
+
+  padding: 1.5rem;
+}
+
+/* Card de ITEM de lista (§6: nunca uma camada de blur por item — o blur fica
+   no contêiner sidebar/topbar/card de nível único). Mesma borda/radius/sombra,
+   sem backdrop-filter; compensa a legibilidade com alpha maior (0.8), com
+   contraste AA verificado (composites no comentário do topo). */
+.card--flat {
+  background: var(--surface-flat);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+
+  .card {
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+  }
+
+  .auth-page__subtitle {
+    margin: 0 0 1.25rem;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+  }
+
+  .auth-page__links {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+    text-align: center;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+  /* permite o campo encolher dentro de grids externos: sem isto, min-width:auto
+     deixa um <select> com opção longa alargar a coluna e estourar o card */
+  min-width: 0;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  input,
+  select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--surface-inset);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+  }
+
+  &.field--invalid input,
+  &.field--invalid select {
+    border-color: var(--danger);
+  }
+}
+
+.field__error {
+  color: var(--danger);
+  font-size: 0.8125rem;
+}
+
+.field__hint {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.btn--outline {
+  border-color: var(--glass-border);
+  background: var(--surface-inset);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--sm {
+  min-height: 36px;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+}
+
+.alert--error {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.alert--success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+/* Banner do modo de visualização de aluno (impersonação), montado no shell e
+   visível em todas as telas. Vive aqui (não no shell.scss) para não estourar o
+   budget de anyComponentStyle. Sticky para permanecer à vista ao rolar; fundo
+   opaco (mistura de --warning com --bg-base) para legibilidade AA sobre o
+   conteúdo, texto nos tokens de texto do tema. */
+.shell__impersonation {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--warning);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--warning) 16%, var(--bg-base));
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+
+  .btn {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  /* abaixo do topbar sticky do shell (min-height 3.5rem) */
+  .shell__impersonation {
+    top: 4rem;
+  }
+}
+
+a {
+  color: var(--accent);
+}
+
+.table-wrap {
+  @extend .glass;
+
+  overflow-x: auto;
+  padding: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    white-space: nowrap;
+  }
+
+  th {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+.badge--ativo {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: transparent;
+}
+
+.badge--inativo {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: transparent;
+}

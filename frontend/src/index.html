@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guia de Estudos</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f7fb" />
+    <meta name="theme-color" content="#0b0f16" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <script>
+      // Aplica o tema salvo (guia.theme) antes do primeiro render para evitar
+      // flash de tema errado (glassmorphism-ui.md §4). Migra valores legados
+      // light/dark → claro/escuro; sem chave (ou valor inválido) segue
+      // prefers-color-scheme. Espelha ThemeService.restore(). Script inline
+      // simples é aceitável no MVP; se uma CSP estrita for adotada, migrar
+      // para hash/nonce.
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem('guia.theme');
+          var legacy = { light: 'claro', dark: 'escuro' };
+          // Object.hasOwn evita lookup na cadeia de protótipos ('constructor'…)
+          if (theme !== null && Object.hasOwn(legacy, theme)) {
+            theme = legacy[theme];
+            localStorage.setItem('guia.theme', theme);
+          }
+          if (theme !== null && ['azul', 'verde', 'claro', 'escuro'].indexOf(theme) === -1) {
+            localStorage.removeItem('guia.theme');
+            theme = null;
+          }
+        } catch (e) {
+          theme = null; /* storage indisponível */
+        }
+        if (theme === null) {
+          var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = dark ? 'escuro' : 'claro';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+    <noscript>Habilite o JavaScript para usar o aplicativo.</noscript>
+  </body>
+</html>

@@ -1,0 +1,381 @@
+// Schema base — os models são adicionados por feature, sempre espelhando
+// .specs/01-arquitetura/data-model.md (snake_case no banco via @map/@@map).
+// Toda mudança de schema gera migration versionada (prisma migrate dev).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext]
+}
+
+enum Role {
+  ADMIN
+  MODERADOR
+  PROFESSOR
+  ALUNO
+
+  @@map("role")
+}
+
+enum UserStatus {
+  ATIVO
+  INATIVO
+  PENDENTE
+
+  @@map("user_status")
+}
+
+enum Origem {
+  PROPRIO
+  HOTMART
+
+  @@map("origem")
+}
+
+enum PlanoTipo {
+  OFICIAL
+  PESSOAL
+
+  @@map("plano_tipo")
+}
+
+enum BlocoStatus {
+  PLANEJADO
+  CONCLUIDO
+  PULADO
+
+  @@map("bloco_status")
+}
+
+enum SessaoOrigem {
+  CRONOMETRO
+  MANUAL
+
+  @@map("sessao_origem")
+}
+
+enum MatriculaStatus {
+  ATIVA
+  INATIVA
+
+  @@map("matricula_status")
+}
+
+model User {
+  id            String     @id @default(uuid()) @db.Uuid
+  nome          String
+  email         String     @unique @db.Citext
+  senhaHash     String?    @map("senha_hash")
+  role          Role
+  status        UserStatus
+  origem        Origem
+  ultimoLoginAt DateTime?  @map("ultimo_login_at") @db.Timestamptz(6)
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?  @map("deleted_at") @db.Timestamptz(6)
+
+  planos            Plano[]
+  cronogramas       Cronograma[]
+  progressos        ProgressoSubtema[]
+  sessoes           SessaoEstudo[]
+  turmas            Turma[]
+  matriculas        Matricula[]
+  registrosQuestoes RegistroQuestoes[]
+  pontuacao         PontuacaoAluno?
+
+  @@map("users")
+}
+
+model Plano {
+  id            String    @id @default(uuid()) @db.Uuid
+  titulo        String
+  descricao     String?
+  tipo          PlanoTipo
+  autorId       String    @map("autor_id") @db.Uuid
+  planoOrigemId String?   @map("plano_origem_id") @db.Uuid
+  publicado     Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  autor       User             @relation(fields: [autorId], references: [id])
+  planoOrigem Plano?           @relation("PlanoDerivacao", fields: [planoOrigemId], references: [id])
+  derivados   Plano[]          @relation("PlanoDerivacao")
+  disciplinas Disciplina[]
+  pesos       PesoDisciplina[]
+  cronogramas Cronograma[]
+  turmas      TurmaPlano[]
+
+  @@index([autorId])
+  @@map("planos")
+}
+
+model Disciplina {
+  id        String    @id @default(uuid()) @db.Uuid
+  planoId   String    @map("plano_id") @db.Uuid
+  nome      String
+  ordem     Int
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  plano   Plano             @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  temas   Tema[]
+  pesos   PesoDisciplina[]
+  blocos  BlocoCronograma[]
+  sessoes SessaoEstudo[]
+
+  @@index([planoId])
+  @@map("disciplinas")
+}
+
+model Tema {
+  id           String    @id @default(uuid()) @db.Uuid
+  disciplinaId String    @map("disciplina_id") @db.Uuid
+  nome         String
+  ordem        Int
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  disciplina        Disciplina         @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  subtemas          Subtema[]
+  registrosQuestoes RegistroQuestoes[]
+
+  @@index([disciplinaId])
+  @@map("temas")
+}
+
+model Subtema {
+  id                 String    @id @default(uuid()) @db.Uuid
+  temaId             String    @map("tema_id") @db.Uuid
+  nome               String
+  ordem              Int
+  duracaoEstimadaMin Int?      @map("duracao_estimada_min")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  tema              Tema               @relation(fields: [temaId], references: [id], onDelete: Cascade)
+  blocos            BlocoCronograma[]
+  progressos        ProgressoSubtema[]
+  sessoes           SessaoEstudo[]
+  registrosQuestoes RegistroQuestoes[]
+
+  @@index([temaId])
+  @@map("subtemas")
+}
+
+model PesoDisciplina {
+  id             String    @id @default(uuid()) @db.Uuid
+  planoId        String    @map("plano_id") @db.Uuid
+  disciplinaId   String    @map("disciplina_id") @db.Uuid
+  pesoPercentual Decimal   @map("peso_percentual") @db.Decimal(5, 2)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  plano      Plano      @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@unique([planoId, disciplinaId])
+  @@map("pesos_disciplina")
+}
+
+model Cronograma {
+  id               String    @id @default(uuid()) @db.Uuid
+  alunoId          String    @map("aluno_id") @db.Uuid
+  planoId          String    @map("plano_id") @db.Uuid
+  diasSemana       Int[]     @map("dias_semana")
+  janelas          Json
+  horasSemanaTotal Decimal   @map("horas_semana_total") @db.Decimal(5, 2)
+  granularidadeMin Int       @default(30) @map("granularidade_min")
+  timezone         String
+  ativo            Boolean   @default(true)
+  geradoEm         DateTime  @default(now()) @map("gerado_em") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  aluno  User              @relation(fields: [alunoId], references: [id])
+  plano  Plano             @relation(fields: [planoId], references: [id])
+  blocos BlocoCronograma[]
+
+  // Invariante "1 cronograma ativo por aluno" garantida por índice ÚNICO
+  // PARCIAL criado via SQL na migration `unique_cronograma_ativo`
+  // (CREATE UNIQUE INDEX ... ON cronogramas (aluno_id) WHERE ativo AND
+  // deleted_at IS NULL) — Prisma não expressa índices parciais no schema.
+  // Atenção: um `migrate dev` futuro pode sugerir DROP desse índice; não aceite.
+  @@index([alunoId, ativo])
+  @@map("cronogramas")
+}
+
+model BlocoCronograma {
+  id           String      @id @default(uuid()) @db.Uuid
+  cronogramaId String      @map("cronograma_id") @db.Uuid
+  disciplinaId String      @map("disciplina_id") @db.Uuid
+  subtemaId    String?     @map("subtema_id") @db.Uuid
+  inicio       DateTime    @db.Timestamptz(6)
+  fim          DateTime    @db.Timestamptz(6)
+  duracaoMin   Int         @map("duracao_min")
+  status       BlocoStatus @default(PLANEJADO)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  cronograma Cronograma     @relation(fields: [cronogramaId], references: [id], onDelete: Cascade)
+  disciplina Disciplina     @relation(fields: [disciplinaId], references: [id])
+  subtema    Subtema?       @relation(fields: [subtemaId], references: [id])
+  sessoes    SessaoEstudo[]
+
+  @@index([cronogramaId, inicio])
+  @@map("blocos_cronograma")
+}
+
+model SessaoEstudo {
+  id           String       @id @default(uuid()) @db.Uuid
+  alunoId      String       @map("aluno_id") @db.Uuid
+  disciplinaId String       @map("disciplina_id") @db.Uuid
+  subtemaId    String?      @map("subtema_id") @db.Uuid
+  blocoId      String?      @map("bloco_id") @db.Uuid
+  origem       SessaoOrigem
+  inicio       DateTime     @db.Timestamptz(6)
+  fim          DateTime?    @db.Timestamptz(6)
+  duracaoMin   Int          @default(0) @map("duracao_min")
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  aluno      User             @relation(fields: [alunoId], references: [id])
+  disciplina Disciplina       @relation(fields: [disciplinaId], references: [id])
+  subtema    Subtema?         @relation(fields: [subtemaId], references: [id])
+  bloco      BlocoCronograma? @relation(fields: [blocoId], references: [id])
+
+  // Invariante RN-1 "1 cronômetro em andamento por aluno" garantida no banco
+  // por índice ÚNICO PARCIAL criado via SQL na migration `create_sessoes`
+  // (CREATE UNIQUE INDEX ... ON sessoes_estudo (aluno_id) WHERE origem =
+  // 'CRONOMETRO' AND fim IS NULL AND deleted_at IS NULL) — Prisma não expressa
+  // índices parciais no schema.
+  // Atenção: um `migrate dev` futuro pode sugerir DROP desse índice; não aceite.
+  @@index([alunoId, inicio])
+  @@map("sessoes_estudo")
+}
+
+model Turma {
+  id            String    @id @default(uuid()) @db.Uuid
+  nome          String
+  descricao     String?
+  professorId   String    @map("professor_id") @db.Uuid
+  codigoConvite String    @unique @map("codigo_convite")
+  ativa         Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  professor  User         @relation(fields: [professorId], references: [id])
+  matriculas Matricula[]
+  planos     TurmaPlano[]
+
+  @@index([professorId])
+  @@map("turmas")
+}
+
+model Matricula {
+  id        String          @id @default(uuid()) @db.Uuid
+  turmaId   String          @map("turma_id") @db.Uuid
+  alunoId   String          @map("aluno_id") @db.Uuid
+  status    MatriculaStatus @default(ATIVA)
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?       @map("deleted_at") @db.Timestamptz(6)
+
+  turma Turma @relation(fields: [turmaId], references: [id])
+  aluno User  @relation(fields: [alunoId], references: [id])
+
+  @@unique([turmaId, alunoId])
+  @@index([alunoId])
+  @@map("matriculas")
+}
+
+// Tabela de junção pura: o desvínculo é HARD delete (indicação explícita do
+// design de turmas, exceção ao soft delete padrão), então não há deleted_at —
+// manter linhas soft-deletadas violaria o unique (turma_id, plano_id) num
+// re-vínculo futuro (mesmo precedente de PesoDisciplina no replace-all).
+model TurmaPlano {
+  id        String   @id @default(uuid()) @db.Uuid
+  turmaId   String   @map("turma_id") @db.Uuid
+  planoId   String   @map("plano_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  turma Turma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  plano Plano @relation(fields: [planoId], references: [id])
+
+  @@unique([turmaId, planoId])
+  @@map("turma_planos")
+}
+
+// taxa_erro = erros/total é DERIVADA em leitura (RN-3/D-1): nenhuma coluna
+// para ela aqui, por decisão de spec — não adicionar.
+// Invariante RN-2 (total >= 1 AND erros >= 0 AND erros <= total) tem CHECK
+// no banco criado via SQL na migration `add_check_registro_questoes` —
+// Prisma não expressa CHECK constraints no schema.
+model RegistroQuestoes {
+  id        String    @id @default(uuid()) @db.Uuid
+  alunoId   String    @map("aluno_id") @db.Uuid
+  temaId    String    @map("tema_id") @db.Uuid
+  subtemaId String?   @map("subtema_id") @db.Uuid
+  data      DateTime  @db.Date
+  total     Int
+  erros     Int
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  aluno   User     @relation(fields: [alunoId], references: [id])
+  tema    Tema     @relation(fields: [temaId], references: [id], onDelete: Cascade)
+  subtema Subtema? @relation(fields: [subtemaId], references: [id], onDelete: Cascade)
+
+  @@index([alunoId, temaId, data])
+  @@map("registro_questoes")
+}
+
+// Agregado materializado do ranking (RN-06 de gamificação): escrito SÓ pelo
+// job de recomputação (UPSERT por aluno_id), lido pelos endpoints de ranking.
+// Campos exatamente como no data-model §PontuacaoAluno — sem created_at/
+// updated_at/deleted_at e sem coluna derivável (semanas/bônus são derivados
+// na serialização a partir de `pontos`).
+model PontuacaoAluno {
+  id                 String   @id @default(uuid()) @db.Uuid
+  alunoId            String   @unique @map("aluno_id") @db.Uuid
+  pontos             Int
+  subtemasConcluidos Int      @map("subtemas_concluidos")
+  horasEstudadas     Decimal  @map("horas_estudadas") @db.Decimal(10, 2)
+  atualizadoEm       DateTime @map("atualizado_em") @db.Timestamptz(6)
+
+  aluno User @relation(fields: [alunoId], references: [id])
+
+  @@map("pontuacoes_aluno")
+}
+
+model ProgressoSubtema {
+  id          String    @id @default(uuid()) @db.Uuid
+  alunoId     String    @map("aluno_id") @db.Uuid
+  subtemaId   String    @map("subtema_id") @db.Uuid
+  concluido   Boolean   @default(false)
+  concluidoEm DateTime? @map("concluido_em") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  aluno   User    @relation(fields: [alunoId], references: [id])
+  subtema Subtema @relation(fields: [subtemaId], references: [id], onDelete: Cascade)
+
+  @@unique([alunoId, subtemaId])
+  @@map("progresso_subtemas")
+}
