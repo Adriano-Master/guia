@@ -136,7 +136,7 @@ describe('ImpersonationService — entrar', () => {
 
     expect(service.ativo()).toBe(true);
     expect(service.state()).toEqual({ alunoNome: 'João Aluno', adminNome: 'Ana Admin' });
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
     http.verify();
   });
 

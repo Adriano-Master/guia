@@ -59,21 +59,52 @@
     </div>
 
     <nav class="shell__nav" aria-label="Navegação principal">
-      <a
-        routerLink="/"
-        routerLinkActive="shell__link--active"
-        ariaCurrentWhenActive="page"
-        [routerLinkActiveOptions]="{ exact: true }"
-        [attr.title]="collapsed() ? 'Início' : null"
-      >
-        <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 10.5 12 3l9 7.5" />
-          <path d="M5 9.5V21h14V9.5" />
-        </svg>
-        <span class="shell__label">Início</span>
-      </a>
       @if (auth.isAuthenticated()) {
+        @if (auth.isAdmin()) {
+          <a
+            routerLink="/admin"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: true }"
+            [attr.title]="collapsed() ? 'Dashboard' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span class="shell__label">Dashboard</span>
+          </a>
+          <a
+            routerLink="/admin/usuarios"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Usuários' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="8" r="3.5" />
+              <path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5" />
+              <path d="M16.5 4.6a3.5 3.5 0 0 1 0 6.8M15 14.7c2.8.5 5 2.2 5 5.3" />
+            </svg>
+            <span class="shell__label">Usuários</span>
+          </a>
+        }
         @if (auth.role() === 'ALUNO') {
+          <a
+            routerLink="/dashboard"
+            routerLinkActive="shell__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.title]="collapsed() ? 'Dashboard' : null"
+          >
+            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span class="shell__label">Dashboard</span>
+          </a>
           <a
             routerLink="/cronograma"
             routerLinkActive="shell__link--active"
@@ -214,21 +245,7 @@
           </svg>
           <span class="shell__label">Perfil</span>
         </a>
-        @if (auth.isAdmin()) {
-          <a
-            routerLink="/admin/usuarios"
-            routerLinkActive="shell__link--active"
-            ariaCurrentWhenActive="page"
-            [attr.title]="collapsed() ? 'Usuários' : null"
-          >
-            <svg class="shell__icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="9" cy="8" r="3.5" />
-              <path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5" />
-              <path d="M16.5 4.6a3.5 3.5 0 0 1 0 6.8M15 14.7c2.8.5 5 2.2 5 5.3" />
-            </svg>
-            <span class="shell__label">Usuários</span>
-          </a>
-        }
+        
       }
     </nav>
 

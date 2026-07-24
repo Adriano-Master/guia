@@ -15,6 +15,16 @@ export const routes: Routes = [
     component: Shell,
     children: [
       {
+        path: 'dashboard',
+        canActivate: [roleGuard('ALUNO')],
+        loadComponent: () => import('./features/dashboard/dashboard-page'),
+      },
+      {
+        path: 'admin',
+        canActivate: [roleGuard('ADMIN')],
+        loadComponent: () => import('./features/admin-dashboard/admin-dashboard'),
+      },
+      {
         path: 'perfil',
         canActivate: [authGuard],
         loadComponent: () => import('./features/perfil/perfil'),

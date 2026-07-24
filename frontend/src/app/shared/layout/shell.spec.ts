@@ -24,6 +24,8 @@ const SIDEBAR_KEY = 'guia.sidebar-collapsed';
 // Rotas que existem hoje em app.routes.ts (nav não pode apontar para fora disso)
 const ROTAS_EXISTENTES = [
   '/',
+  '/dashboard',
+  '/admin',
   '/login',
   '/register',
   '/forgot-password',
@@ -178,10 +180,10 @@ afterEach(() => {
 });
 
 describe('Shell — links por role', () => {
-  it('deslogado: nav só tem Início; footer oferece Entrar e Criar conta', async () => {
+  it('deslogado: nav vazio; footer oferece Entrar e Criar conta', async () => {
     const fixture = await createFixture(null);
 
-    expect(textosDoNav(fixture)).toEqual(['Início']);
+    expect(textosDoNav(fixture)).toEqual([]);
 
     const hrefs = hrefsDaSidebar(fixture);
     expect(hrefs).toContain('/login');
@@ -199,11 +201,11 @@ describe('Shell — links por role', () => {
     expect(element(fixture).textContent).not.toContain('Sair');
   });
 
-  it('ALUNO: Início, Calendário, Estudar, Progresso, Questões, Estatísticas, Ranking, Minhas turmas, Planos e Perfil — sem área admin', async () => {
+  it('ALUNO: Dashboard, Calendário, Estudar, Progresso, Questões, Estatísticas, Ranking, Minhas turmas, Planos e Perfil — sem área admin', async () => {
     const fixture = await createFixture(buildUser('ALUNO'));
 
     expect(textosDoNav(fixture)).toEqual([
-      'Início',
+      'Dashboard',
       'Calendário',
       'Estudar',
       'Progresso',
@@ -216,6 +218,7 @@ describe('Shell — links por role', () => {
     ]);
 
     const hrefs = hrefsDaSidebar(fixture);
+    expect(hrefs).toContain('/dashboard');
     expect(hrefs).toContain('/cronograma');
     expect(hrefs).toContain('/sessoes');
     expect(hrefs).toContain('/progresso');
@@ -232,12 +235,13 @@ describe('Shell — links por role', () => {
     expect(element(fixture).textContent).toContain('Sair');
   });
 
-  it('ADMIN: vê Turmas e Usuários e não vê Calendário/Estudar/Progresso/Questões (rotas de ALUNO) nem Ranking', async () => {
+  it('ADMIN: vê Dashboard, Turmas e Usuários e não vê Calendário/Estudar/Progresso/Questões (rotas de ALUNO) nem Ranking', async () => {
     const fixture = await createFixture(buildUser('ADMIN'));
 
-    expect(textosDoNav(fixture)).toEqual(['Início', 'Turmas', 'Planos', 'Perfil', 'Usuários']);
+    expect(textosDoNav(fixture)).toEqual(['Turmas', 'Planos', 'Perfil', 'Dashboard', 'Usuários']);
 
     const hrefs = hrefsDaSidebar(fixture);
+    expect(hrefs).toContain('/admin');
     expect(hrefs).toContain('/admin/usuarios');
     expect(hrefs).toContain('/turmas');
     expect(hrefs).not.toContain('/minhas-turmas');
@@ -252,7 +256,7 @@ describe('Shell — links por role', () => {
   it('PROFESSOR: vê Turmas e Ranking (US-05 de gamificação), sem área admin', async () => {
     const fixture = await createFixture(buildUser('PROFESSOR'));
 
-    expect(textosDoNav(fixture)).toEqual(['Início', 'Turmas', 'Ranking', 'Planos', 'Perfil']);
+    expect(textosDoNav(fixture)).toEqual(['Turmas', 'Ranking', 'Planos', 'Perfil']);
 
     const hrefs = hrefsDaSidebar(fixture);
     expect(hrefs).toContain('/turmas');

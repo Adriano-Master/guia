@@ -111,7 +111,7 @@ export class ImpersonationService {
     this.auth.setUser({ ...aluno, ...res.user });
     impersonationStateSignal.set(state);
     impersonationAvisoSignal.set(null);
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/dashboard']);
   }
 
   /**
