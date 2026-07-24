@@ -47,11 +47,29 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8081:80" # 8081 no host pois 8080 já está em uso
+      - "127.0.0.1:8081:80" # acesso local direto p/ debug; o Traefik NÃO precisa disso
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - guia-net
+    labels:
+      - "traefik.enable=true"
+      # Traefik (host mode) alcança o container pelo IP desta rede, na porta 80.
+      # O nginx deste container também faz proxy de /api/ para o serviço `api`,
+      # então um único router cobre SPA + API.
+      - "traefik.docker.network=guia_net"
+      # ATENÇÃO: ${APP_DOMAIN} é interpolado pelo compose a partir do .env da RAIZ
+      # do projeto — no VPS, suba com:
+      #   docker compose --env-file .env -f docker/docker-compose.yml up -d --build
+      # (sem --env-file, cai no default "localhost" e o router não casa o domínio)
+      - "traefik.http.routers.guia.rule=Host(`${APP_DOMAIN:-localhost}`)"
+      # Se o domínio tiver DNS para www, troque a rule por:
+      # - "traefik.http.routers.guia.rule=Host(`${APP_DOMAIN}`) || Host(`www.${APP_DOMAIN}`)"
+      - "traefik.http.routers.guia.entrypoints=websecure"
+      - "traefik.http.routers.guia.tls=true"
+      - "traefik.http.routers.guia.tls.certresolver=letsencrypt"
+      - "traefik.http.services.guia.loadbalancer.server.port=80"
+      # HTTP->HTTPS já é redirecionado globalmente pelo Traefik.
 
 volumes:
   db_data:
@@ -59,3 +77,5 @@ volumes:
 networks:
   guia-net:
     driver: bridge
+    # Nome fixo p/ casar com traefik.docker.network (sem prefixo do projeto).
+    name: guia_net
